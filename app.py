@@ -100,15 +100,21 @@ def load_model_and_scaler():
     from tensorflow.keras.models import load_model
     from tensorflow.keras.layers import Dense, InputLayer
 
-    # Monkeypatch for Keras 3 deserialization bug: 'quantization_config' not recognized
-    # This happens when loading models saved in slightly different Keras 3 versions
-    for layer_cls in [Dense, InputLayer]:
-        original_init = layer_cls.__init__
-        def patched_init(self, *args, **kwargs):
-            kwargs.pop('quantization_config', None)
-            kwargs.pop('optional', None) # Also seen in some traces
-            return original_init(self, *args, **kwargs)
-        layer_cls.__init__ = patched_init
+    # Monkeypatch for Keras 3 deserialization bugs
+    # This intercepts the config dicts before the layers are reconstructed
+    original_dense_from_config = Dense.from_config
+    def patched_dense_from_config(cls, config):
+        config.pop('quantization_config', None)
+        return original_dense_from_config(config)
+    Dense.from_config = classmethod(patched_dense_from_config)
+
+    original_input_from_config = InputLayer.from_config
+    def patched_input_from_config(cls, config):
+        config.pop('optional', None)
+        if 'batch_shape' in config:
+            config['batch_input_shape'] = config.pop('batch_shape')
+        return original_input_from_config(config)
+    InputLayer.from_config = classmethod(patched_input_from_config)
 
     model  = load_model(MODEL_PATH, compile=False)
     scaler = joblib.load(SCALER_PATH)
