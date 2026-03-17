@@ -97,7 +97,7 @@ TIME_STEP   = 100
 def load_model_and_scaler():
     import joblib
     from tensorflow.keras.models import load_model
-    model  = load_model(MODEL_PATH)
+    model  = load_model(MODEL_PATH, compile=False)
     scaler = joblib.load(SCALER_PATH)
     return model, scaler
 
