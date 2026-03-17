@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+
+# Large data & model files (tracked separately)
+AAPL_full.csv
+aapl_lstm_model.keras
+aapl_scaler.pkl
+plot_*.png
+prediction_plot.png
+outputs.txt
+
+# OS
+.DS_Store
+Thumbs.db
